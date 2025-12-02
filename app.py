@@ -8,4 +8,4 @@ app = create_app()
 
 if __name__ == '__main__':
     #a chamada db.create_all() já está dentro do create_app()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
