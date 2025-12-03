@@ -65,8 +65,6 @@ def create_app():
     #criação das tabelas do db
     with app.app_context():
         try: 
-            #o db.init_app(app) deve ser chamado antes desta linha
-            db.create_all() 
             logger.info(f'Tabelas do banco de dados criadas/verificadas. {inspect(db.engine).get_table_names()}')
         except Exception as e:
             logger.error('Erro crítico ao criar as tabelas do BD: %s', e)

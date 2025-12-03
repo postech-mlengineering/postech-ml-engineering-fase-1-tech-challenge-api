@@ -20,8 +20,8 @@ class Books(db.Model):
     price_incl_tax   = db.Column(db.Float, nullable=False)
     tax             = db.Column(db.Float, nullable=False)
     number_of_reviews  = db.Column(db.Integer, nullable=False)
-    url             = db.Column(db.String(200), nullable=False)
-    image_url       = db.Column(db.String(200), nullable=False)
+    url             = db.Column(db.String(1024), nullable=False)
+    image_url       = db.Column(db.String(1024), nullable=False)
     def __repr__(self):
         return f'<Title {self.title}>'
 
