@@ -72,8 +72,14 @@ def extract_book_details(url: str, genre: str) -> Optional[Dict[str, Any]]:
     try:
         detail_response = requests.get(url, timeout=10)
         detail_response.raise_for_status()
+        detail_response.encoding = 'utf-8'
         detail_soup = BeautifulSoup(detail_response.text, 'html.parser')
 
+        #extraindo link da imagem
+        image_tag = detail_soup.find('div', class_='item active').find('img')
+        image_relative_url = image_tag['src']
+        image_url = BASE_URL + image_relative_url.replace('../../', '')
+        
         #extraindo dados simples
         title = detail_soup.find('h1').text
         
@@ -106,10 +112,10 @@ def extract_book_details(url: str, genre: str) -> Optional[Dict[str, Any]]:
         number_of_reviews = int(product_table[6].text) if product_table[6].text.isdigit() else 0
 
         return {
+            'upc': upc,
             'title': title,
             'genre': genre,
             'price': price,
-            'upc': upc,
             'product_type': product_type,
             'price_excl_tax': price_excl_tax,
             'price_incl_tax': price_incl_tax,
@@ -118,7 +124,7 @@ def extract_book_details(url: str, genre: str) -> Optional[Dict[str, Any]]:
             'availability': availability,
             'rating': rating,
             'description': description,
-            'url': url
+            'image_url': image_url
         }
     except Exception as e:
         logging.error(f"Erro ao extrair detalhes de {url}: {e}")
@@ -206,7 +212,8 @@ if __name__ == "__main__":
             'price_incl_tax', 
             'tax', 
             'number_of_reviews',
-            'url'
+            'url',
+            'image_url'
         ]
         
         df_books = df_books[ordered_columns]
