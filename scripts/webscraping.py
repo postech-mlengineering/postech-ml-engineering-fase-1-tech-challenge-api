@@ -194,12 +194,12 @@ if __name__ == "__main__":
         
         # Colunas ordenadas para o output final
         ordered_columns = [
+            'upc', 
             'title', 
             'genre', 
             'price', 
             'availability', 
             'rating', 
-            'upc', 
             'description',
             'product_type', 
             'price_excl_tax', 

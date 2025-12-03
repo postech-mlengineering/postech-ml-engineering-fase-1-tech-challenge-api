@@ -123,6 +123,9 @@ def book_detail(upc):
             url:
               type: string
               description: URL relativa da página do produto.
+            image_url:
+              type: string
+              description: URL relativa à imagem  do produto.
         examples:
           application/json: 
             upc: "a228380e22709289"
@@ -137,7 +140,8 @@ def book_detail(upc):
             price_incl_tax: 5.99
             tax: 0.00
             number_of_reviews: 1
-            url: "catalogue/the-white-queen_1/index.html"
+            url: "http://books.toscrape.com/catalogue/its-only-the-himalayas_981/index.html"
+            image_url: "http://books.toscrape.com/media/cache/fe/8a/fe8af6ceec7718986380c0fde9b3b34f.jpg"
       401:
         description: Não autorizado (Requer autenticação JWT).
       404:

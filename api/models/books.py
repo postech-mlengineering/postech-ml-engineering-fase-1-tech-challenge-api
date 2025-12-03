@@ -21,6 +21,7 @@ class Books(db.Model):
     tax             = db.Column(db.Float, nullable=False)
     number_of_reviews  = db.Column(db.Integer, nullable=False)
     url             = db.Column(db.String(200), nullable=False)
+    image_url       = db.Column(db.String(200), nullable=False)
     def __repr__(self):
         return f'<Title {self.title}>'
 
@@ -81,7 +82,8 @@ def get_book_by_upc(upc):
                 'price_incl_tax': book.price_incl_tax,
                 'tax': book.tax,
                 'number_of_reviews': book.number_of_reviews,
-                'url': book.url
+                'url': book.url,
+                'image_url': book.image_url
             }
             return result
         return None
