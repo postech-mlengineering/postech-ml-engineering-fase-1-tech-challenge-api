@@ -277,7 +277,7 @@ def top_rated_books():
         name: limit
         type: integer
         required: false
-        description: Número máximo de livros a retornar (Padrão: 10).
+        description: Número máximo de livros a retornar (Padrão 10)
     responses:
       200:
         description: Lista dos livros mais bem avaliados.
