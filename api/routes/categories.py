@@ -1,7 +1,6 @@
 import logging
 from flask import Blueprint, jsonify
-from flask_bcrypt import Bcrypt
-from api.models.books import get_all_categories
+from api.scripts.categories_utils import get_all_categories
 from flask_jwt_extended import jwt_required
 
 
@@ -16,37 +15,50 @@ def categories():
     Retorna a lista de todas as categorias de livros.
     ---
     tags:
-      - Categorias
+        - Categories
+    summary: Listagem de categorias de livros.
+    description: |
+        Endpoint responsável por retornar lista com categorias de livros.
     responses:
-      200:
-        description: Lista de categorias ou mensagem de que não há categorias.
-        schema:
-          type: array
-          items:
-            type: object
-            properties:
-              id:
-                type: integer
-                description: ID da categoria.
-              nome:
-                type: string
-                description: Nome da categoria.
-        examples:
-          application/json: 
-            - id: 1
-              nome: Ficção Científica
-            - id: 2
-              nome: Romance
-            - id: 3
-              nome: Fantasia
-      401:
-        description: Erro interno ou de autenticação (se aplicável na exceção).
-        schema:
-          type: object
-          properties:
-            error:
-              type: string
-              description: Mensagem de erro.
+        200:
+            description: Lista de categorias de livros.
+            schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                      id:
+                          type: integer
+                          description: ID da categoria.
+                      nome:
+                          type: string
+                          description: Nome da categoria.
+            examples:
+                application/json: 
+                    - category: 'Autobiography'
+                    - category: 'Art'
+        401:
+            description: Erro de autenticação JWT.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro de autenticação.
+            examples:
+                application/json:
+                    error: 'Erro de autenticação'
+        500:
+            description: Erro interno do servidor.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro interno do servidor.
+            examples:
+                application/json:
+                    error: '<erro interno do servidor>'
     '''
     try:
         categorias = get_all_categories()
@@ -55,4 +67,4 @@ def categories():
         return jsonify({'msg': 'Sem categorias cadastradas'}), 200
     except Exception as e:
         logger.error(f'error: {e}')
-        return jsonify({'error': e}), 401
+        return jsonify({'error': e}), 500
