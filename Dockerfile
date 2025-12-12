@@ -7,11 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instala o Poetry (método recomendado)
-RUN curl -sSL https://install.python-poetry.org | python3 -
-ENV PATH="/root/.local/bin:$PATH"
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install poetry
 
 # Poetry instala libs diretamente no sistema
 RUN poetry config virtualenvs.create false
