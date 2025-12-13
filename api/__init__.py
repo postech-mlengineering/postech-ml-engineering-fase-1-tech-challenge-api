@@ -6,6 +6,7 @@ from sqlalchemy import inspect
 from flask_bcrypt import Bcrypt
 
 from api.config.config import Config
+from api.config.config import TestingConfig
 from api.routes.auth import auth_bp
 from api.routes.health import health_bp
 from api.routes.categories import categories_bp
@@ -22,12 +23,16 @@ from api.logs.routes_middleware import register_route_logger
 bcrypt = Bcrypt()
 logger = logging.getLogger('api.auth')
 
-def create_app():
+def create_app(testing=False):
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger('api')
     
     app = Flask(__name__)
-    app.config.from_object(Config)
+
+    if testing:
+        app.config.from_object(TestingConfig) #Quando for teste usar o sqlite em memoria
+    else:
+        app.config.from_object(Config)
 
     #inicializa as extensões com o app
     db.init_app(app)
