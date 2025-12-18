@@ -4,9 +4,6 @@ import re
 import string
 import unicodedata
 from nltk.tokenize import word_tokenize
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('punkt_tab')
 from nltk.corpus import stopwords
 
 logger = logging.getLogger('api.scripts.ml_utils')

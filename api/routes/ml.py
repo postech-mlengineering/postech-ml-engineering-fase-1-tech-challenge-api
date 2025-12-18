@@ -200,21 +200,33 @@ def make_predictions():
         try:
             for rec in recommendations:
                 book_recommendation = BookRecommendation(
-                    user_id=user_id,
-                    original_title=title,
-                    original_book_id=original_book_id,
-                    recommended_book_id=rec['id'],
-                    similarity_score=rec['similarity_score']
+                    user_id                 = user_id,
+                    original_title          = title,
+                    original_book_id        = str(original_book_id),
+                    recommended_book_id     = int(rec['id']),
+                    recommended_book_title  = str(rec['title']),
+                    similarity_score        = float(rec['similarity_score'])
                 )
                 db.session.add(book_recommendation)
                 saved_recommendations.append(book_recommendation)
             
             db.session.commit()
             logger.info(f'{len(saved_recommendations)} recomendações salvas no banco de dados para: {title}')
+
+            # Retorna as recomendações junto com a mensagem de sucesso
+            return jsonify({
+                "msg": "Recomendações salvas no banco",
+                "recommendations": recommendations
+            }), 200
+
         except Exception as save_error:
             db.session.rollback()
             logger.error(f'Erro ao salvar recomendações no banco de dados: {save_error}')
-            # Continua e retorna as recomendações mesmo se não conseguir salvar
+            # Retorna as recomendações mesmo se não conseguir salvar, mas com aviso
+            return jsonify({
+                "error": f"Erro ao salvar no banco: {str(save_error)}",
+                "recommendations": recommendations
+            }), 500
 
         return jsonify(recommendations), 200
 

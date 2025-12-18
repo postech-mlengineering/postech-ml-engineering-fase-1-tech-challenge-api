@@ -19,6 +19,10 @@ COPY pyproject.toml poetry.lock ./
 # Instala dependências
 RUN poetry install --without dev --no-interaction --no-ansi
 
+#Baixar dados do NLTK durante a construção
+RUN python -c "import nltk; nltk.download('punkt_tab'); nltk.download('stopwords')"
+
+
 # Copia aplicação
 COPY . .
 
