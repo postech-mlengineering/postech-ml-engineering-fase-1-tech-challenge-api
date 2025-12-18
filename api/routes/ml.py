@@ -13,7 +13,6 @@ from api.scripts.ml_utils import tokenizer, content_recommender
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
-
 ml_bp = Blueprint('ml', __name__, url_prefix='/api/v1/ml')
 logger = logging.getLogger('api.routes.ml')
 
@@ -79,6 +78,8 @@ def get_training_data():
         cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
         
         idx = pd.Series(df.index, index=df['title']).drop_duplicates()
+
+        os.makedirs('data/ml_artifacts/', exist_ok=True)
 
         joblib.dump(tfidf, TFIDF_VECTORIZER_PATH)
         joblib.dump(cosine_sim, COSINE_SIM_PATH)
