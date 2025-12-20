@@ -3,7 +3,7 @@ from sqlalchemy import case, func
 from api.models.books import Books
 
 
-logger = logging.getLogger('api.scripts.stats_utils')
+logger = logging.getLogger('__name__')
 
 
 def get_stats_overview():

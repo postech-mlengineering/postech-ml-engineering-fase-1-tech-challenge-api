@@ -3,7 +3,7 @@ import datetime
 from api.models.__init__ import db
 
 
-logger = logging.getLogger('api.models.refresh_token_manager')
+logger = logging.getLogger('__name__')
 
 
 class RefreshTokenManager(db.Model):

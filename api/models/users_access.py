@@ -3,7 +3,7 @@ import datetime
 from api.models.__init__ import db
 
 
-logger = logging.getLogger('api.models.user_access')
+logger = logging.getLogger('__name__')
 
 
 class UserAccess(db.Model):

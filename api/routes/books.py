@@ -10,7 +10,7 @@ from api.scripts.books_utils import (
 from flask_jwt_extended import jwt_required
 
 
-logger = logging.getLogger('api.routes.books')
+logger = logging.getLogger('__name__')
 books_bp = Blueprint('books', __name__)
 
 

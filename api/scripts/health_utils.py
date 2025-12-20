@@ -2,7 +2,7 @@ import logging
 from api.models.books import Books
 
 
-logger = logging.getLogger('api.scripts.health_utils')
+logger = logging.getLogger('__name__')
 
 
 def check_db_connection():

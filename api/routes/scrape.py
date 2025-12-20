@@ -6,8 +6,8 @@ from sqlalchemy import text
 from api.scripts.scrape_utils import run_scraping_and_save_data
 
 
+logger = logging.getLogger('__name__')
 scrape_bp = Blueprint('scrape', __name__)
-logger = logging.getLogger('api.routes.scrape')
 
 
 @scrape_bp.route('/scrape', methods=['POST'])

@@ -13,8 +13,8 @@ from api.scripts.ml_utils import tokenizer, recommender
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
+logger = logging.getLogger('__name__')
 ml_bp = Blueprint('ml', __name__, url_prefix='/api/v1/ml')
-logger = logging.getLogger('api.routes.ml')
 
 TFIDF_VECTORIZER_PATH = 'data/ml_artifacts/tfidf_vectorizer.pkl'
 COSINE_SIM_PATH = 'data/ml_artifacts/cosine_sim_matrix.pkl'
@@ -209,6 +209,81 @@ def predictions():
             logger.error(f'error: {e}')
             return jsonify({'error': str(e)}), 500
     
+    except Exception as e:
+        logger.error(f'error: {e}')
+        return jsonify({'error': str(e)}), 500
+    
+
+@ml_bp.route('/user-preferences/<int:user_id>', methods=['GET'])
+@jwt_required()
+def user_preferences(user_id):
+    '''
+    Retorna o histórico de recomendações (preferências) de um usuário específico.
+    ---
+    tags:
+        - ml
+    summary: Consulta de histórico de preferências.
+    description: |
+        Busca na base de dados todos os registros de recomendações gerados anteriormente 
+        para um usuário específico, com base no seu ID.
+    parameters:
+        - name: user_id
+          in: path
+          type: integer
+          required: true
+          description: O ID numérico do usuário.
+    responses:
+        200:
+            description: Lista de preferências encontradas.
+            schema:
+                type: array
+                items:
+                    type: object
+                    properties:
+                        id:
+                            type: integer
+            examples:
+                application/json:
+                    id: 1
+        404:
+            description: Histórico não encontrado.
+            schema:
+                type: object
+                properties:
+                    msg:
+                        type: string
+            examples:
+                application/json:
+                    msg: 'Não há histórico de predições para o usuário id 1.'
+        500:
+            description: Erro interno do servidor.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+    '''
+    try:
+        query = db.session.query(UserPreferences, Books).join(
+            Books, UserPreferences.recommended_book_id == Books.id
+        ).filter(
+            UserPreferences.user_id == user_id
+        ).order_by(
+            UserPreferences.similarity_score.desc()
+        ).all()
+        if not query:
+            return jsonify({'msg': f'Não há histórico de predições para o usuário id {user_id}.'}), 404
+        results = []
+        for pref, book in query:
+            results.append({
+                'id': book.id,
+                'title': book.title,
+                'price': book.price,
+                'rating': book.rating,
+                'image_url': book.image_url,
+                'similarity_score': pref.similarity_score,
+            })
+        return jsonify(results), 200
     except Exception as e:
         logger.error(f'error: {e}')
         return jsonify({'error': str(e)}), 500

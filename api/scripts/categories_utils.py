@@ -3,7 +3,7 @@ from sqlalchemy import distinct
 from api.models.books import Books
 
 
-logger = logging.getLogger('api.scripts.categories_utils')
+logger = logging.getLogger('__name__')
 
 
 def get_all_categories():

@@ -9,7 +9,7 @@ nltk.download('punkt_tab')
 from nltk.corpus import stopwords
 
 
-logger = logging.getLogger('api.scripts.ml_utils')
+logger = logging.getLogger('__name__')
 
 
 def normalize_accents(text):

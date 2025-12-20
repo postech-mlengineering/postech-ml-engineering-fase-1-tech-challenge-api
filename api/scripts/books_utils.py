@@ -3,7 +3,7 @@ from sqlalchemy import distinct, or_, case
 from api.models.books import Books
 
 
-logger = logging.getLogger('api.scripts.books_utils')
+logger = logging.getLogger('__name__')
 
 
 def get_all_categories():

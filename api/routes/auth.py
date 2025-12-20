@@ -14,7 +14,7 @@ from api.config.config import Config
 
 
 bcrypt = Bcrypt()
-logger = logging.getLogger('api.routes.auth')
+logger = logging.getLogger('__name__')
 auth_bp = Blueprint('auth', __name__)
 
 
@@ -84,13 +84,31 @@ def register_user():
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         new_user = User(username=data['username'], password=hashed_password)
         db.session.add(new_user)
+        db.session.flush() # Flush para obter o user.id antes do commit final
+
+        access_token = create_access_token(identity=str(new_user.id))
+        refresh_token = create_refresh_token(identity=str(new_user.id))
+
+        new_refresh_token_to_db = RefreshTokenManager(
+            username=data['username'],
+            refresh_token=refresh_token,
+            refresh_token_expire_at=datetime.utcnow() + Config.JWT_REFRESH_TOKEN_EXPIRES
+        )
+        db.session.add(new_refresh_token_to_db)
+        
         db.session.commit()
+
+        return jsonify({
+            'msg': 'Usuário criado com sucesso',
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'user_id': new_user.id
+        }), 201
+
     except Exception as e:
         db.session.rollback()
         logger.error(f'error: {e}')
-        return jsonify({'error': e}), 500
-    
-    return jsonify({'msg': 'Usuário criado com sucesso'}), 201
+        return jsonify({'error': str(e)}), 500
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -175,10 +193,11 @@ def login():
             )
         
         if existing_refresh_token:
-            access_token    = create_access_token(identity=str(user.id))
+            access_token = create_access_token(identity=str(user.id))
             return jsonify({
                 'access_token': access_token,
-                'refresh_token': existing_refresh_token.refresh_token
+                'refresh_token': existing_refresh_token.refresh_token,
+                'user_id': user.id
             }), 200
         
         access_token = create_access_token(identity=str(user.id))
@@ -193,7 +212,8 @@ def login():
 
         return jsonify({
             'access_token': access_token, 
-            'refresh_token': refresh_token
+            'refresh_token': refresh_token,
+            'user_id': user.id
         }), 200
         
     return jsonify({'error': 'Usuário ou senha inválidas'}), 401

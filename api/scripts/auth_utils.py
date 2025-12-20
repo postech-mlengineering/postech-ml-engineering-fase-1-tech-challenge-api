@@ -2,7 +2,7 @@ import logging
 from api.models.user import User
 
 
-logger = logging.getLogger('api.scripts.user_utils')
+logger = logging.getLogger('__name__')
 
 
 def get_user_by_username(username):

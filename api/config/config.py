@@ -1,5 +1,9 @@
+import logging
 import os
 from datetime import timedelta
+
+
+logger = logging.getLogger('__name__')
 
 
 class Config(object):

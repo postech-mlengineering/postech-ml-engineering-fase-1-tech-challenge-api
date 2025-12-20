@@ -4,7 +4,7 @@ import datetime
 from api.scripts.health_utils import check_db_connection
 
 
-logger = logging.getLogger('api.routes.health')
+logger = logging.getLogger('__name__')
 health_bp = Blueprint('health', __name__)
 
 

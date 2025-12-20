@@ -6,7 +6,7 @@ import re
 from typing import List, Dict, Any, Optional
 
 
-logger = logging.getLogger('api.scripts.scrape_utils')
+logger = logging.getLogger('__name__')
 
 BASE_URL = 'http://books.toscrape.com/'
 HOME_URL = BASE_URL + 'index.html'

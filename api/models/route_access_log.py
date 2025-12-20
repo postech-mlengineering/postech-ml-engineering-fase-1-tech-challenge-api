@@ -3,7 +3,7 @@ from datetime import datetime
 from api.models.__init__ import db
 
 
-logger = logging.getLogger('api.models.route_access_log')
+logger = logging.getLogger('__name__')
 
 
 class RouteAccessLog(db.Model):

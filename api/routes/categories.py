@@ -4,7 +4,7 @@ from api.scripts.categories_utils import get_all_categories
 from flask_jwt_extended import jwt_required
 
 
-logger = logging.getLogger('api.routes.categories')
+logger = logging.getLogger('__name__')
 categories_bp = Blueprint('categories', __name__)
 
 

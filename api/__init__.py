@@ -20,8 +20,9 @@ from api.models.__init__ import db
 from api.logs.routes_middleware import register_route_logger
 
 
+logger = logging.getLogger('__name__')
 bcrypt = Bcrypt()
-logger = logging.getLogger('api.auth')
+
 
 def create_app(testing=False):
     logging.basicConfig(level=logging.INFO)
