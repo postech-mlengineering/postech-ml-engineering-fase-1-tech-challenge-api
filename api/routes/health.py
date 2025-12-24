@@ -11,16 +11,16 @@ health_bp = Blueprint('health', __name__)
 @health_bp.route('/health', methods=['GET'])
 def health_check():
     '''
-    Verifica o status da API, incluindo a conexão com o banco de dados.
+    Retorna status da API
     ---
     tags:
         - Health
-    summary: Listagem de categorias de livros.
+    summary: Status da API.
     description: |
-        Endpoint responsável por retornar lista com categorias d
+        Endpoint responsável por retornar status da API.
     responses:
         200:
-            description: A API está operacional, com ou sem conexão com o DB.
+            description: Status da API.
             schema:
                 type: object
                 properties:
@@ -37,7 +37,7 @@ def health_check():
                 application/json: 
                     api_status: OK
                     db_status: UP
-                    timestamp: "2025-12-02T19:40:00.000000Z"
+                    timestamp: '2025-12-24T14:13:35.400376'
         500:
             description: Erro interno do servidor.
             schema:

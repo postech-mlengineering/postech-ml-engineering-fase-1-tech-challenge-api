@@ -20,7 +20,7 @@ books_bp = Blueprint('books', __name__)
 @cache.cached(timeout=3600)
 def book_titles():
     '''
-    Retorna a lista de todos os títulos de livros cadastrados no sistema.
+    Retorna lista com todos os títulos de livros cadastrados
     ---
     tags:
         - Books
@@ -49,7 +49,7 @@ def book_titles():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:
@@ -77,7 +77,7 @@ def book_titles():
 @cache.memoize(timeout=3600)
 def book_details(id):
     '''
-    Retorna detalhes de um livro conforme id fornecido.
+    Retorna detalhes de um livro conforme id fornecido
     ---
     tags:
         - Books
@@ -173,7 +173,7 @@ def book_details(id):
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         404:
             description: Livro não encontrado.
             schema:
@@ -212,7 +212,7 @@ def book_details(id):
 @cache.memoize(timeout=3600)
 def books_by_title_category():
     '''
-    Retorna livros por título e/ou categoria conforme parâmetros fornecidos.
+    Retorna livros por título e/ou gênero conforme parâmetros fornecidos
     ---
     tags:
         - Books
@@ -224,15 +224,15 @@ def books_by_title_category():
           name: title
           type: string
           required: false
-          description: Título para busca.
+          description: Título.
         - in: query
           name: genre
           type: string
           required: false
-          description: Categoria para busca.
+          description: Gênero.
     responses:
         200:
-            description: Listagem de livros por título e/ou categoria.
+            description: Listagem de livros por título e/ou gênero.
             schema:
                 type: array
                 items:
@@ -249,22 +249,28 @@ def books_by_title_category():
                             description: Título do livro.
                         genre: 
                             type: string
-                            description: Categoria do livro.
+                            description: Gênero do livro.
                         price: 
                             type: number
                             format: float
                             description: Preço do livro.
                         image_url:
                             type: string
-                            description: URL da imagem do produto.
+                            description: URL da imagem do livro.
             examples:
                 application/json: 
-                    - id: 1
-                      upc: '123'
-                      title: 'Livro A'
-                      genre: 'Fantasia'
-                      price: 10.00
-                      image_url: 'http://example.com/image.jpg'
+                    - id: 43
+                      upc: 'f684a82adc49f011'
+                      title: 'A Murder in Time'
+                      genre: 'Mystery'
+                      price: 53.98
+                      image_url: 'http://books.toscrape.com/media/cache/f6/8e/f68e6ae2f9da04fccbde8442b0a1b52a.jpg'
+                    - id: 15
+                      upc: 'f733e8c19d40ec2e'
+                      title: 'A Murder in Time'
+                      genre: 'Mystery'
+                      price: 16.64
+                      image_url: 'http://books.toscrape.com/media/cache/cc/bd/ccbd7a62caefd5a3a2e04dd7c2ff48fe.jpg'
         400:
             description: Parâmetros ausentes.
             schema:
@@ -275,7 +281,7 @@ def books_by_title_category():
                         description: Mensagem de erro para requisição inválida.
             examples:
                 application/json:
-                    msg: 'Forneça um parâmetro "title" e/ou "genre" para a busca.'
+                    msg: 'Forneça o parâmetro title e/ou genre para a consulta.'
         401:
             description: Erro de autenticação JWT.
             schema:
@@ -286,7 +292,7 @@ def books_by_title_category():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         404:
             description: Nenhum livro encontrado com os filtros aplicados.
             schema:
@@ -297,7 +303,7 @@ def books_by_title_category():
                         description: Mensagem de erro para items não encontrados.
             examples:
                 application/json:
-                    msg: 'Nenhum livro encontrado com os filtros aplicados'
+                    msg: 'Nenhum livro encontrado com os parâmetros fornecidos'
         500:
             description: Erro interno do servidor.
             schema:
@@ -314,11 +320,11 @@ def books_by_title_category():
         title = request.args.get('title')
         genre = request.args.get('genre')
         if not title and not genre:
-            return jsonify({'msg': 'Forneça um parâmetro "title" e/ou "genre" para a busca.'}), 400
+            return jsonify({'msg': 'Forneça o parâmetro title e/ou genre para a consulta.'}), 400
         books = get_books_by_title_or_category(title=title, genre=genre)
         if books:
             return jsonify(books), 200
-        return jsonify({'msg': 'Nenhum livro encontrado com os filtros aplicados'}), 404
+        return jsonify({'msg': 'Nenhum livro encontrado com os parâmetros fornecidos'}), 404
     except Exception as e:
         logger.error(f'error: {e}')
         return jsonify({'error': str(e)}), 500
@@ -329,7 +335,7 @@ def books_by_title_category():
 @cache.memoize(timeout=3600)
 def books_by_price_range_route(): 
     '''
-    Retorna livros conforme faixa de preço especificada.
+    Retorna livros conforme faixa de preço especificada
     ---
     tags:
         - Books
@@ -341,12 +347,12 @@ def books_by_price_range_route():
           name: min
           type: number
           required: true
-          description: Preço mínimo (inclusivo).
+          description: Preço mínimo.
         - in: query
           name: max
           type: number
           required: true
-          description: Preço máximo (inclusivo).
+          description: Preço máximo.
     responses:
         200:
             description: Listagem de informações de livros conforme faixa de preço especificada.
@@ -381,7 +387,14 @@ def books_by_price_range_route():
                       price: 10.0
                       title: 'An Abundance of Katherines'
                       upc: 'f36d24c309e87e5b'
-                      image_url: 'http://example.com/image.jpg'
+                      image_url: 'http://books.toscrape.com/media/cache/d5/45/d54527d34174d5dd7eaeaaffdfcb3c5c.jpg'
+                    - id: 805
+                      genre: 'Science'
+                      price: 10.01
+                      title: 'The Origin of Species'
+                      upc: '0345872b14f9e774'
+                      image_url: 'http://books.toscrape.com/media/cache/9b/c8/9bc86bc10a6beea536422bbe82e076fb.jpg'
+        400:
         400:
             description: Parâmetros ausentes ou inválidos.
             schema:
@@ -392,7 +405,7 @@ def books_by_price_range_route():
                         description: Mensagem de erro para requisição inválida.
             examples:
                 application/json:
-                    msg: 'Os parâmetros "min" e "max" são obrigatórios.'
+                    msg: 'Os parâmetros min e max são obrigatórios.'
         401:
             description: Erro de autenticação JWT.
             schema:
@@ -403,7 +416,7 @@ def books_by_price_range_route():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         404:
             description: Nenhum livro encontrado na faixa de preço informada.
             schema:
@@ -431,7 +444,7 @@ def books_by_price_range_route():
         min_price = request.args.get('min', type=float)
         max_price = request.args.get('max', type=float)
         if min_price is None or max_price is None:
-            return jsonify({'msg': 'Os parâmetros "min" e "max" são obrigatórios.'}), 400
+            return jsonify({'msg': 'Os parâmetros min e max são obrigatórios.'}), 400
         books = get_books_by_price_range(min_price=min_price, max_price=max_price)
         if books:
             return jsonify(books), 200
@@ -446,7 +459,7 @@ def books_by_price_range_route():
 @cache.cached(timeout=3600)
 def books_top_rated():
     '''
-    Lista os livros com a melhor avaliação (rating mais alto).
+    Retorna lista dos livros com melhor avaliação
     ---
     tags:
         - Books
@@ -458,7 +471,7 @@ def books_top_rated():
           name: limit
           type: integer
           required: false
-          description: Número máximo de livros a retornar (Padrão 10)
+          description: Número máximo de livros a retornar.
     responses:
         200:
             description: Listagem de informações de livros ordenados por avaliação.
@@ -472,14 +485,14 @@ def books_top_rated():
                             description: ID do livro.
                         genre: 
                             type: string
-                            description: Categoria do livro.
+                            description: Gênero do livro.
                         price: 
                             type: number
                             format: float
                             description: Preço do livro.
                         rating:
                             type: string
-                            description: Avaliação do livro (e.g., One star, Two stars).
+                            description: Avaliação do livro.
                         title: 
                             type: string
                             description: Título do livro.
@@ -488,16 +501,23 @@ def books_top_rated():
                             description: Código do livro.
                         image_url:
                             type: string
-                            description: URL da imagem do produto.
+                            description: URL da imagem do livro.
             examples:
                 application/json:
-                    - id: 101
-                      genre: 'Sequential Art'
-                      price: 13.61
+                    - id: 11
+                      genre: 'Travel'
+                      price: 26.08
                       rating: 'Five'
-                      title: 'Princess Jellyfish 2-in-1 Omnibus, Vol. 01'
-                      upc: '0fa6dceead7ce47a'
-                      image_url: 'http://example.com/image.jpg'
+                      title: '1,000 Places to See Before You Die'
+                      upc: '228ba5e7577e1d49'
+                      image_url: 'http://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg'
+                    - id: 993
+                      genre: 'Health'
+                      price: 49.71
+                      rating: 'Five'
+                      title: '110-Day Green Smoothie Cleanse: Lose Up to 15 Pounds in 10 Days!'
+                      upc: '96aa539bfd4c07e2'
+                      image_url: 'http://books.toscrape.com/media/cache/79/84/7984ef7c568a60372f430c1ddae64034.jpg'
         401:
             description: Erro de autenticação JWT.
             schema:
@@ -508,7 +528,7 @@ def books_top_rated():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         404:
             description: Nenhum livro encontrado.
             schema:

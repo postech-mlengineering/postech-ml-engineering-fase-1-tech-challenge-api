@@ -2,7 +2,7 @@ import logging
 from api.extensions import cache
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required
-from api.scripts.stats_utils import get_stats_overview, get_stats_by_category
+from api.scripts.stats_utils import get_stats_overview, get_stats_by_genre
 
 
 logger = logging.getLogger('__name__')
@@ -14,29 +14,29 @@ stats_bp = Blueprint('stats', __name__)
 @cache.cached(timeout=3600)
 def stats_overview():
     '''
-    Retorna estatísticas gerais da coleção.
+    Retorna estatísticas gerais do acervo de livros
     ---
     tags:
         - Statistics
-    summary: Estatísticas gerais da coleção.
+    summary: Estatísticas gerais do acervo.
     description: |
-        Endpoint responsável por retornar estatísticas gerais da coleção.
+        Endpoint responsável por retornar estatísticas gerais do acervo.
     responses:
         200:
-            description: Estatísticas gerais da coleção.
+            description: Estatísticas gerais do acervo.
             schema:
                 type: object
                 properties:
                     avg_price:
                         type: number
                         format: float
-                        description: Preço médio dos livros na coleção.
+                        description: Preço médio dos livros do acervo.
                     total_books:
                         type: integer
-                        description: Número total de livros na coleção.
+                        description: Número total de livros do acervo.
                     rating_distribution:
                         type: array
-                        description: Distribuição de contagem de livros por avaliação (rating).
+                        description: Distribuição de contagem de livros por avaliação.
                         items:
                             type: object
                             properties:
@@ -71,7 +71,7 @@ def stats_overview():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:
@@ -94,21 +94,21 @@ def stats_overview():
         return jsonify({'error': str(e)}), 500
 
 
-@stats_bp.route('/categories', methods=['GET'])
+@stats_bp.route('/genres', methods=['GET'])
 @jwt_required()
 @cache.cached(timeout=3600)
-def stats_categories():
+def stats_genres():
     '''
-    Retorna estatísticas detalhadas por categoria.
+    Retorna estatísticas detalhadas por gênero.
     ---
     tags:
         - Statistics
-    summary: Estatísticas gerais da coleção por categoria.
+    summary: Estatísticas gerais do acervo por gênero.
     description: |
-        Endpoint responsável por retornar estatísticas detalhadas por categoria.
+        Endpoint responsável por retornar estatísticas detalhadas por gênero.
     responses:
         200:
-              description: Estatísticas gerais da coleção por categoria.
+              description: Estatísticas gerais do acervo por gênero.
               schema:
                 type: array
                 items:
@@ -120,11 +120,11 @@ def stats_categories():
                             description: Média de preços.
                         category: 
                             type: string
-                            description: Categoria ou gênero do livro.
+                            description: Gênero do livro.
                         total: 
                             type: number
                             format: integer
-                            description: Total de livros na categoria.
+                            description: Total de livros no gênero.
               examples:
                   application/json:
                       - avg_price: 34.39
@@ -146,7 +146,7 @@ def stats_categories():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:
@@ -160,10 +160,10 @@ def stats_categories():
                     error: '<erro interno do servidor>'
     '''
     try:
-        stats = get_stats_by_category()
+        stats = get_stats_by_genre()
         if stats:
             return jsonify(stats), 200
-        return jsonify({'msg': 'Nenhuma estatística de categoria disponível'}), 404
+        return jsonify({'msg': 'Nenhuma estatística por gênero disponível'}), 404
     except Exception as e:
         logger.error(f'error: {e}')
         return jsonify({'error': str(e)}), 500

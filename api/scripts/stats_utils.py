@@ -42,7 +42,7 @@ def get_stats_overview():
         return None
 
 
-def get_stats_by_category():
+def get_stats_by_genre():
     '''
     Calcula estatísticas agregadas por categoria de livro.
 
@@ -67,7 +67,7 @@ def get_stats_by_category():
         )
         results = [
             {
-                'category': stat.genre,
+                'genre': stat.genre,
                 'total': stat.count,
                 'avg_price': round(stat.avg_price, 2)
             }

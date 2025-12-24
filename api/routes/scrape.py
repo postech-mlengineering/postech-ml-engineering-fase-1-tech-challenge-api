@@ -4,6 +4,7 @@ from api.models.books import Books
 from api.extensions import db
 from sqlalchemy import text 
 from api.scripts.scrape_utils import run_scraping
+from flask_jwt_extended import jwt_required
 
 
 logger = logging.getLogger('__name__')
@@ -11,18 +12,19 @@ scrape_bp = Blueprint('scrape', __name__)
 
 
 @scrape_bp.route('/scrape', methods=['POST'])
+@jwt_required()
 def scrape():
     '''
-    Executa o web scraping, salva CSV e insere novos registros na tabela books.
+    Realiza o web scraping para aquisição dos dados
     ---
     tags:
         - Scrape 
-    summary: Web scraping e inserção de dados.
+    summary: Web scraping.
     description: |
         Endpoint responsável pelo processo de web scraping e inserção de novos registros na tabela books.
     responses:
         200:
-            description: Dados de livros coletados e inseridos com sucesso.
+            description: Web scraping.
             schema:
                 type: object
                 properties:
@@ -34,8 +36,19 @@ def scrape():
                         description: Número de registros inseridos.
             examples:
                 application/json:
-                    - msg: 'Dados coletados, salvos em CSV e inseridos no banco de dados com sucesso'
+                    - msg: 'Web scraping realizado com sucesso'
                     - total_records: 1000
+        401:
+            description: Erro de autenticação JWT.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro de autenticação.
+            examples:
+                application/json:
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:
@@ -64,8 +77,8 @@ def scrape():
         db.session.commit()
 
         return jsonify({
-            'msg': 'Scraping concluído',
-            'Total de registros inseridos': len(data_to_insert)
+            'msg': 'Web scraping realizado com sucesso',
+            'total_records': len(data_to_insert)
         }), 200
 
     except Exception as e:

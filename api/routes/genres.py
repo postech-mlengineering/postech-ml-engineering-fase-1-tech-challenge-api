@@ -14,31 +14,28 @@ genres_bp = Blueprint('genres', __name__)
 @cache.cached(timeout=3600)
 def genres():
     '''
-    Retorna a lista de todas as categorias de livros.
+    Retorna lista com todos os gêneros de livros cadastrados
     ---
     tags:
         - Genres
-    summary: Listagem de categorias de livros.
+    summary: Listagem de gêneros de livros cadastrados.
     description: |
-        Endpoint responsável por retornar lista com categorias de livros.
+        Endpoint responsável por retornar lista com gêneros de livros cadastrados.
     responses:
         200:
-            description: Lista de categorias de livros.
+            description: Listagem de gêneros de livros cadastrados.
             schema:
                 type: array
                 items:
                   type: object
                   properties:
-                      id:
-                          type: integer
-                          description: ID da categoria.
-                      nome:
+                      genre:
                           type: string
-                          description: Nome da categoria.
+                          description: Nome do gênero.
             examples:
                 application/json: 
-                    - category: 'Autobiography'
-                    - category: 'Art'
+                    - genre: 'Autobiography'
+                    - genre: 'Art'
         401:
             description: Erro de autenticação JWT.
             schema:
@@ -49,7 +46,7 @@ def genres():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:

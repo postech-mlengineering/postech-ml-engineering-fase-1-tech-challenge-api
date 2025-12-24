@@ -20,34 +20,57 @@ COSINE_SIM_PATH = 'data/ml_artifacts/cosine_sim_matrix.pkl'
 IDX_PATH = 'data/ml_artifacts/idx_series.pkl'
 
 
-@ml_bp.route('/training-data', methods=['GET'])
+@ml_bp.route('/features', methods=['GET'])
 @jwt_required()
-def training_data():
+def get_features():
     '''
-    Prepara os dados para treinamento, calcula a matriz de similaridade e salva os artefatos.
+    Retorna lista com features de treinamento para recomendação de livros
     ---
     tags:
-        - ML 
-    summary: Preparação de dados e artefatos de treinamento.
+        - ML
+    summary: Listagem de features de treinamento para recomendação de livros
     description: |
-        Lê todos os livros do banco de dados, pré-processa as descrições, calcula a matriz de similaridade do cosseno 
-        e salva os artefatos (tfidf, cosine_sim, idx) para uso posterior na predição.
+        Endpoint responsável por retornar features para treinamento.
     responses:
         200:
-            description: Artefatos de treinamento gerados e salvos com sucesso.
+            description: Listagem de features de treinamento para recomendação de livros
             schema:
                 type: object
                 properties:
-                    msg:
-                        type: string
-                        description: Mensagem de sucesso.
-                    total_records:
-                        type: integer
-                        description: Número de registros processados.
+                    features:
+                        type: array
+                        items:
+                            type: object
+                            properties:
+                                id:
+                                    type: integer
+                                    description: ID único do livro.
+                                title:
+                                    type: string
+                                    description: Título do livro.
+                                description:
+                                    type: string
+                                    description: Descrição tokenizada (ML-ready).
             examples:
                 application/json:
-                    msg: 'Dados prontos para treinamento. Artefatos de modelo salvos com sucesso.'
-                    total_records: 1000
+                    features:
+                        - id: 1
+                          title: "It's Only the Himalayas"
+                          description: "wherever whatever dont anything stupid motherduring yearlong adventure..."
+                        - id: 2
+                          title: "Full Moon over Noah’s Ark: An Odyssey to Mount Ararat and Beyond"
+                          description: "acclaimed travel writer rick antonson sets adventurous compass..."
+        401:
+            description: Erro de autenticação JWT.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro de autenticação.
+            examples:
+                application/json:
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:
@@ -62,13 +85,106 @@ def training_data():
     '''
     try:
         query = db.session.execute(db.select(Books)).scalars().all()
-        df = pd.DataFrame([book.to_dict() for book in query])
+        data = [
+            {
+                'id': book.id, 
+                'title': book.title, 
+                'description': tokenizer(book.description) if book.description else ""
+            } 
+            for book in query
+        ]
+        return jsonify({
+            'total_records': len(data),
+            'features': data
+        }), 200
+    except Exception as e:
+        logger.error(f'Erro ao recuperar features: {e}')
+        return jsonify({'error': str(e)}), 500
+
+
+@ml_bp.route('/training-data', methods=['GET'])
+@jwt_required()
+def training_data():
+    '''
+    Realiza o pipeline de treinamento para recomendação de livros
+    ---
+    tags:
+        - ML
+    summary: Pipeline de treinamento para recomendação de livros
+    description: |
+        Endpoint responsável por realizar o pipeline de treinamento, gerando os artefatos para recomendação de livros:
+        
+            - Matriz TF-IDF: uma matriz esparsa de dimensão n×m (onde n é o número de livros e m o vocabulário), onde cada linha representa um vetor de características de um livro e cada célula contém o peso estatístico da importância de um termo no contexto global do dataset
+            - Matriz de similaridade: uma matriz quadrada simétrica resultante do cálculo do Produto Escalar (Linear Kernel) entre os vetores da matriz TF-IDF. Ela estabelece a Similaridade de Cosseno, variando de 0 a 1, que quantifica a distância semântica entre todos os pares de livros possíveis
+            - Vetor de índices: vetor unidimensional que mapeia títulos para índices, permitindo a indexação e recuperação eficiente das coordenadas correspondentes na matriz de similaridade
+
+        Os arquivos são persistidos em disco (arquivos .joblib) para uso pelo endpoint de predição.
+    responses:
+        200:
+            description: Pipeline de treinamento para recomendação de livros
+            schema:
+                type: object
+                properties:
+                    msg:
+                        type: string
+                        description: Mensagem de sucesso.
+                    total_records:
+                        type: integer
+                        description: Número de registros processados.
+                    features:
+                        type: array
+                        description: Lista de livros processados para o treinamento.
+                        items:
+                            type: object
+                            properties:
+                                id:
+                                    type: integer
+                                    example: 1
+                                title:
+                                    type: string
+                                    example: "It's Only the Himalayas"
+                                description:
+                                    type: string
+                                    example: "wherever whatever dont anything stupid..."
+            examples:
+                application/json:
+                    msg: 'Pipeline de treinamento executado com sucesso'
+                    artifacts_saved:
+                        - 'tfidf_vectorizer.pkl'
+                        - 'cosine_sim_matrix.pkl'
+                        - 'idx_series.pkl'
+        401:
+            description: Erro de autenticação JWT.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro de autenticação.
+            examples:
+                application/json:
+                    error: '<erro de autenticação>'
+        500:
+            description: Erro interno do servidor.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro interno do servidor.
+            examples:
+                application/json:
+                    error: '<erro interno do servidor>'
+    '''
+    try:
+        query = db.session.execute(db.select(Books)).scalars().all()
+        data = [{'id': book.id, 'title': book.title, 'description': book.description} for book in query]
+        df = pd.DataFrame(data)
         
         if df.empty:
-            return jsonify({'msg': 'Nenhum dado encontrado no banco de dados para treinamento.'}), 200
+            return jsonify({'msg': 'Nenhum dado encontrado para treinamento.'}), 200
 
-        df['description'] = df['description'].fillna('')
-        df['description'] = df['description'].apply(tokenizer)
+        df['description'] = df['description'].fillna('').apply(tokenizer)
         df = df[df['description'].str.len() > 0].reset_index(drop=True)
         
         tfidf = TfidfVectorizer(stop_words='english')
@@ -79,26 +195,20 @@ def training_data():
         idx = pd.Series(df.index, index=df['title']).drop_duplicates()
 
         os.makedirs('data/ml_artifacts/', exist_ok=True)
-
         joblib.dump(tfidf, TFIDF_VECTORIZER_PATH)
         joblib.dump(cosine_sim, COSINE_SIM_PATH)
         joblib.dump(idx, IDX_PATH)
-        
-        total_records = len(df)
-        logger.info(f'Artefatos de modelo salvos: {total_records} registros processados.')
-
-        training_data_json = df[['id', 'title', 'description']].rename(
-            columns={'id': 'id'}
-        ).to_dict(orient='records')
 
         return jsonify({
-            'msg': 'Dados prontos para treinamento. Artefatos de modelo salvos com sucesso.',
-            'total_records': total_records,
-            'training_data': training_data_json 
+            'msg': 'Pipeline de treinamento executado com sucesso',
+            'artifacts_saved': [
+                os.path.basename(TFIDF_VECTORIZER_PATH),
+                os.path.basename(COSINE_SIM_PATH),
+                os.path.basename(IDX_PATH)
+            ]
         }), 200
-
     except Exception as e:
-        logger.error(f'error: {e}')
+        logger.error(f'Erro no pipeline de treinamento: {e}')
         return jsonify({'error': str(e)}), 500
 
 
@@ -107,11 +217,11 @@ def training_data():
 @cache.memoize(timeout=3600)
 def predictions():
     '''
-    Retorna os 10 livros mais similares a um título fornecido usando os artefatos de treinamento.
+    Retorna lista com os 10 livros mais similares ao título especificado
     ---
     tags:
-        - ml
-    summary: Geração de recomendações de livros.
+        - ML
+    summary: Listagem de livros mais similares.
     description: |
         Recebe um título de livro e retorna os 10 mais similares com base na matriz de similaridade do cosseno 
         e nos artefatos salvos na pasta 'data'.
@@ -129,7 +239,7 @@ def predictions():
                 title: 'The Secret Garden'
     responses:
         200:
-            description: Lista dos 10 livros mais similares.
+            description: Listagem de livros mais similares.
             schema:
                 type: array
                 items:
@@ -152,6 +262,17 @@ def predictions():
             examples:
                 application/json:
                     error: 'Título do livro não fornecido.'
+        401:
+            description: Erro de autenticação JWT.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro de autenticação.
+            examples:
+                application/json:
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:
@@ -219,23 +340,22 @@ def predictions():
 @cache.memoize(timeout=3600)
 def user_preferences(user_id):
     '''
-    Retorna o histórico de recomendações (preferências) de um usuário específico.
+    Retorna lista com recomendações do usuário especificado
     ---
     tags:
-        - ml
-    summary: Consulta de histórico de preferências.
+        - ML
+    summary: Listagem de recomendações para o usuário especificado.
     description: |
-        Busca na base de dados todos os registros de recomendações gerados anteriormente 
-        para um usuário específico, com base no seu ID.
+        Endpoint responsável por retornar as recomendações para o usuário especificado.
     parameters:
         - name: user_id
           in: path
           type: integer
           required: true
-          description: O ID numérico do usuário.
+          description: ID do usuário.
     responses:
         200:
-            description: Lista de preferências encontradas.
+            description: Listagem de recomendações para o usuário especificado.
             schema:
                 type: array
                 items:
@@ -243,11 +363,40 @@ def user_preferences(user_id):
                     properties:
                         id:
                             type: integer
+                            description: ID do livro recomendado.
+                        title:
+                            type: string
+                            description: Título do livro.
+                        price:
+                            type: number
+                            format: float
+                            description: Preço do livro.
+                        rating:
+                            type: string
+                            description: Avaliação do livro.
+                        image_url:
+                            type: string
+                            description: URL da imagem do livro.
+                        similarity_score:
+                            type: number
+                            format: float
+                            description: Score de similaridade calculado.
             examples:
                 application/json:
-                    id: 1
+                    - id: 10
+                      title: 'Neither Here nor There: Travels in Europe'
+                      price: 38.95
+                      rating: 'Three'
+                      image_url: 'http://books.toscrape.com/media/cache/c9/9a/c99a7a05537cd842eb4db83d537e3a4d.jpg'
+                      similarity_score: 0.08789228241825091
+                    - id: 11
+                      title: '1,000 Places to See Before You Die'
+                      price: 26.08
+                      rating: 'Five'
+                      image_url: 'http://books.toscrape.com/media/cache/9e/10/9e106f81f65b293e488718a4f54a6a3f.jpg'
+                      similarity_score: 0.07543122131231231
         404:
-            description: Histórico não encontrado.
+            description: Histórico de predições não encontrado.
             schema:
                 type: object
                 properties:
@@ -256,6 +405,17 @@ def user_preferences(user_id):
             examples:
                 application/json:
                     msg: 'Não há histórico de predições para o usuário id 1.'
+        401:
+            description: Erro de autenticação JWT.
+            schema:
+                type: object
+                properties:
+                    error:
+                        type: string
+                        description: Mensagem de erro de autenticação.
+            examples:
+                application/json:
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:

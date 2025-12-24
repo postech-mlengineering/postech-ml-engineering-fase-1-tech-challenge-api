@@ -36,7 +36,7 @@ def register_user():
             properties:
                 username:
                     type: string
-                    example: 'hugo'
+                    example: 'teste'
                 password:
                     type: string
                     example: '123456'
@@ -48,10 +48,23 @@ def register_user():
                 properties:
                     msg:
                         type: string
-                        description: Mensagem de succeso para registro de usuário.
+                        description: Mensagem de successo para registro de usuário.
+                    user_id:
+                        type: string
+                        description: ID do usuário.
+                    access_token:
+                        type: string
+                        description: Access token.
+                    refresh_token:
+                        type: string
+                        description: Refresh token.
+
             examples:
                 application/json:
                     msg: 'Usuário criado com sucesso'
+                    user_id: 1
+                    access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+                    refresh_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         400:
             description: Usuário já existe.
             schema:
@@ -113,20 +126,20 @@ def register_user():
 @auth_bp.route('/login', methods=['POST'])
 def login():
     '''
-    Realiza a autenticação do usuário e gera tokens JWT
+    Realiza a autenticação do usuário
     ---
     tags:
       - Auth
     summary: Autenticação de usuário e geração de tokens.
     description: |
         Endpoint responsável por autenticar o usuário.
+
         Caso as credenciais estejam corretas, o endpoint:
-            - Registra o acesso do usuário na tabela `user_access`
-            - Verifica se já existe um *refresh token* válido no banco
-            - Caso exista, reutiliza o *refresh token* e gera um novo *access token*
-            - Caso não exista, cria um novo *refresh token* e salva no banco
-            - Retorna *access token* e *refresh token`*
-        O *access token* é curto (ex.: 15 minutos), enquanto o *refresh token* é válido por mais tempo (ex.: 1 dia), sendo reaproveitado até expirar.
+
+            - Registra o acesso do usuário
+            - Verifica se existe um refresh token válido para o usuário
+            - Caso exista, gera um novo access token
+            - Caso não exista, registra um novo refresh token, retornando-o juntamentamente com o access token
     parameters:
         - in: body
           name: body
@@ -136,7 +149,7 @@ def login():
               properties:
                   username:
                       type: string
-                      example: 'hugo'
+                      example: 'teste'
                   password:
                       type: string
                       example: '123456'
@@ -149,11 +162,18 @@ def login():
             schema:
                 type: object
                 properties:
-                    msg:
+                    user_id:
                         type: string
-                        description: Mensagem de sucesso para autenticação do usuário.
+                        description: ID do usuário.
+                    access_token:
+                        type: string
+                        description: Access token.
+                    refresh_token:
+                        type: string
+                        description: Refresh token.
             examples:
                 application/json:
+                    user_id: 1
                     access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
                     refresh_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
         401:
@@ -236,18 +256,16 @@ def refresh():
         - Auth
     summary: Atualização do token de acesso.
     description: |
-        Endpoint utilizado para gerar um novo *access token* a partir de um *refresh token* válido.
-        
-        O *refresh token* deve ser enviado no header `Authorization` usando o formato: `Bearer <refresh_token>`.
+        Endpoint responsável por gerar um novo access token a partir de um refresh token válido.
     responses:
         200:
-            description: Novo access token gerado com sucesso.
+            description: Token de acesso gerado com sucesso.
             schema:
                 type: object
                 properties:
-                    msg:
+                    access token:
                         type: string
-                        description: Mensagem de sucesso para atualização do token.
+                        description: Access token.
             examples:
                 application/json:
                     'access token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
@@ -261,7 +279,7 @@ def refresh():
                         description: Mensagem de erro de autenticação.
             examples:
                 application/json:
-                    error: 'Erro de autenticação'
+                    error: '<erro de autenticação>'
         500:
             description: Erro interno do servidor.
             schema:
