@@ -59,5 +59,6 @@ markers = [
     "search: testes especificos para o endoinp search",
     "price_range: testes especificos para o endoinp price_range",
     "top_rated: testes especificos para o endoinp top_rated",
-    "genres: testes especificos para o endpoint genres"
+    "genres: testes especificos para o endpoint genres",
+    "stats: testes especificos para o endpoint stats"
 ]
