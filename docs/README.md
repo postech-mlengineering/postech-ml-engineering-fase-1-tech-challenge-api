@@ -101,40 +101,49 @@ A API estará rodando em http://127.0.0.1:5000/ e a documentação interativa Sw
 
 ## Funcionalidades
 
-### 1. Autenticação e Usuários (`/api/v1/auth`)
+### Auth (`/api/v1/auth`)
 
 Use estes endpoints para gerenciar o acesso à API.
 
-- **Register (/register)**: Cria um novo usuário e retorna os tokens iniciais (Access e Refresh).
-- **Login (/login)**: Autentica o usuário e gera o par de tokens JWT.
-- **Refresh (/refresh)**: Gera um novo token de acesso utilizando um Refresh Token válido.
+- **/register**: responsável por registrar usuário e gerar par de tokens JWT
+- **/login**: responsável por autenticar o usuário e gerar par de tokens JWT
+- **/refresh**: responsável por gerar um novo access token a partir de um refresh token válido
 
-### 2. Catálogo de Livros (`/api/v1/books`)
+### Books (`/api/v1/books`)
 
 Endpoints para consulta e filtragem do acervo.
 
-- **Titles (/titles)**: Lista todos os títulos de livros cadastrados (Protegido/Cache).
-- **Details (/<id>)**: Retorna os detalhes técnicos completos de um livro por ID (Protegido/Cache).
-- **Search (/search)**: Busca livros por título e/ou gênero via parâmetros de query (Protegido/Cache).
-- **Price Range (/price-range)**: Filtra livros por faixa de preço mínima e máxima (Protegido/Cache).
-- **Top Rated (/top-rated)**: Retorna os livros com melhores avaliações (Protegido/Cache).
+- **/titles**: responsável por retornar títulos de livros cadastrados
+- **/details/\<book_id\>**: responsável por retornar detalhes de um livro conforme id fornecido
+- **/search**: responsável por retornar lista com informações de livros conforme parâmetros fornecidos
+- **/price-range**: responsável por retornar lista com informações de livros conforme faixa de preço especificada
+- **/top-rated**: responsável por retornar lista com informações de livros ordenada por avaliação
 
-### 3. Machine Learning e Recomendação (`/api/v1/ml`)
+### Genres (`/api/v1/genres`)
+
+- **/**: responsável por retornar lista com gêneros de livros cadastrados
+
+### Web Scraping
+
+- **/scrape**: responsável pelo processo de web scraping e inserção de novos registros na tabela books
+
+### ML (`/api/v1/ml`)
 
 Motor de inteligência artificial para sugestão de conteúdo.
 
-- **Features (/features)**: Lista os dados processados e tokenizados usados no modelo (Protegido).
-- **Training (/training-data)**: Executa o pipeline de treinamento (TF-IDF) e salva os artefatos `.pkl` (Protegido).
-- **Predictions (/predictions)**: Recebe um título e retorna os 10 livros mais similares (Protegido/Cache).
-- **User History (/user-preferences/<user_id>)**: Lista o histórico de recomendações salvas para o usuário (Protegido/Cache).
+- **/features**: responsável por retornar features para treinamento
+- **/training-data**: responsável por realizar o pipeline de treinamento, gerando os artefatos para recomendação de livros
+- **/predictions**: responsável por retornar os 10 livros mais similares ao título especificado
+- **/user-preferences/\<user_id\>**: responsável por retornar as recomendações para o usuário especificado
 
-### 4. Estatísticas e Gestão (`/api/v1/stats`, `/api/v1/genres`, `/api/v1/scrape`)
+### Estatísticas (`/api/v1/stats`)
 
-- **Stats Overview (/stats/overview)**: Estatísticas gerais como preço médio e total de livros (Protegido/Cache).
-- **Stats Genres (/stats/genres)**: Análise detalhada de preços e volumes por gênero (Protegido/Cache).
-- **Genres (/genres)**: Lista todas as categorias disponíveis no sistema (Protegido/Cache).
-- **Scrape (/scrape)**: Aciona o robô de Web Scraping para atualizar a base de dados (Protegido).
-- **Health (/health)**: Verifica o status da API e a conectividade com o Banco de Dados.
+- **Stats Overview (/overview)**: responsável por retornar estatísticas gerais do acervo
+- **Stats Genres (/genres)**: responsável por retornar estatísticas detalhadas por gênero
+
+### Gestão (`/api/v1/health`)
+
+- **Health (/)**: Verifica o status da API e a conectividade com o Banco de Dados.
 
 ### Tecnologias
 

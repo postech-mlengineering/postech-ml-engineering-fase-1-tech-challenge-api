@@ -11,7 +11,7 @@ logger = logging.getLogger('__name__')
 scrape_bp = Blueprint('scrape', __name__)
 
 
-@scrape_bp.route('/scrape', methods=['POST'])
+@scrape_bp.route('/', methods=['POST'])
 @jwt_required()
 def scrape():
     '''

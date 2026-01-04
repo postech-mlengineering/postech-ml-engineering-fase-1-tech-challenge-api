@@ -24,9 +24,9 @@ def register_user():
     ---
     tags:
       - Auth
-    summary: Registro de usuário.
+    summary: Registro de usuário e geração de tokens.
     description: |
-        Endpoint responsável por registrar usuário.
+        Endpoint responsável por registrar usuário e retornar access e refresh token.
     parameters:
         - in: body
           name: body

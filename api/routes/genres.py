@@ -9,7 +9,7 @@ logger = logging.getLogger('__name__')
 genres_bp = Blueprint('genres', __name__)
 
 
-@genres_bp.route('/genres', methods=['GET'])
+@genres_bp.route('/', methods=['GET'])
 @jwt_required()
 @cache.cached(timeout=3600)
 def genres():

@@ -72,7 +72,7 @@ def book_titles():
         return jsonify({'error': str(e)}), 500
 
 
-@books_bp.route('/<string:id>', methods=['GET'])
+@books_bp.route('details/<string:id>', methods=['GET'])
 @jwt_required()
 @cache.memoize(timeout=3600)
 def book_details(id):
@@ -83,7 +83,7 @@ def book_details(id):
         - Books
     summary: Detalhes de um livro conforme id fornecido.
     description: |
-        Endpoint responsável por retornar detalhes de um livro conforme upc fornecido.
+        Endpoint responsável por retornar detalhes de um livro conforme ID fornecido.
     parameters:
         - in: path
           name: id

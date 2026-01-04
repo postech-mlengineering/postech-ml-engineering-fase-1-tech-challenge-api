@@ -22,7 +22,7 @@ IDX_PATH = 'data/ml_artifacts/idx_series.pkl'
 
 @ml_bp.route('/features', methods=['GET'])
 @jwt_required()
-def get_features():
+def features():
     '''
     Retorna lista com features de treinamento para recomendação de livros
     ---
@@ -223,8 +223,7 @@ def predictions():
         - ML
     summary: Listagem de livros mais similares.
     description: |
-        Recebe um título de livro e retorna os 10 mais similares com base na matriz de similaridade do cosseno 
-        e nos artefatos salvos na pasta 'data'.
+        Endpoint responsável por retornar os 10 livros mais similares ao título especificado.
     parameters:
         - name: body
           in: body
