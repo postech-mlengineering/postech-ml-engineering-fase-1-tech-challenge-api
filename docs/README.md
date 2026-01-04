@@ -76,7 +76,7 @@ O Poetry criará um ambiente virtual isolado e instalará todas as bibliotecas d
 
 ### Como Rodar a Aplicação
 
-**Via Docker (Recomendado):**
+**Docker:**
 
 Execute o comando abaixo para subir o ambiente completo (API + Dependências):
 ```bash
@@ -170,9 +170,3 @@ Aplicativo:
 Repositório GitHub: https://github.com/postech-mlengineering/postech-ml-techchallenge-fase-1-streamlit
 
 ### Deploy
-
-Esta API possui arquivo de configuração para deploy via **Docker** e suporte a variáveis de ambiente. Em produção:
-
-1. Altere a `JWT_SECRET_KEY` para uma chave forte e armazene-a como variável de ambiente.
-
-2. Configure a `DATABASE_URL` para apontar para um banco persistente.
