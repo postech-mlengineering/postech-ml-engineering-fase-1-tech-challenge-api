@@ -64,7 +64,7 @@ curl -sSL https://install.python-poetry.org | python3 -
 
 ### Instalação
 
-Clone o repositório e instale as dependências listadas no pyproject.toml:
+Clone o repositório e instale as dependências:
 
 ```bash
 git clone https://github.com/jorgeplatero/postech-ml-techchallenge-fase-1.git
@@ -78,7 +78,6 @@ O Poetry criará um ambiente virtual isolado e instalará todas as bibliotecas d
 
 **Docker:**
 
-Execute o comando abaixo para subir o ambiente completo (API + Dependências):
 ```bash
 docker-compose up --build
 ```
@@ -90,6 +89,7 @@ docker-compose up --build
 ```bash
 poetry run alembic upgrade head
 ```
+
 2. Inicie a aplicação:
 
 ```bash
@@ -163,10 +163,10 @@ A aplicação atua como a camada de serviço (API) que interage com o cliente, o
 
 ### Integrações
 
-A API em produção recebe requisições de aplicativo web desenlvolvido com Streamlit, cujo link e repositório pode ser acessado em:
+Esta API recebe requisições de um aplicativo web desenvolvido com Streamlit e tem suas rotas `\scrape` e `*/training-data` orquestradas pelo Apache Airflow.
 
-Aplicativo:
+Link para o repositóro do aplicativo web: https://github.com/postech-mlengineering/postech-ml-techchallenge-fase-1-streamlit
 
-Repositório GitHub: https://github.com/postech-mlengineering/postech-ml-techchallenge-fase-1-streamlit
+Link para o repositóro do Airflow: https://github.com/postech-mlengineering/postech-ml-engineering-fase-1-techchallenge-airflow
 
 ### Deploy
