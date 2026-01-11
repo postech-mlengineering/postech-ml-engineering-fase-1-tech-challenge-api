@@ -1,12 +1,13 @@
 import logging
-from flask import request
 from api.extensions import db
 from api.models.route_access_log import RouteAccessLog
 from api.models.user import User
+import time
+from flask import request, g
 from flask_jwt_extended import decode_token
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('__name__')
 
 
 def get_user_info():
@@ -19,7 +20,7 @@ def get_user_info():
         data = decode_token(token)
         user_id = data.get('sub')
         user = db.session.query(User.username).filter(User.id == user_id).first()
-        return user_id, (user.username if user else "Usuário não encontrado")
+        return user_id, (user.username if user else 'Usuário não encontrado')
     except Exception as e:
         logger.error(f'error: {e}')
         return None, 'Token Inválido'
@@ -27,15 +28,21 @@ def get_user_info():
 
 def register_route_logger(app):
     @app.before_request
-    def log_request_info():
-        #ignorando logs de rotas desnecessárias
-        ignored_prefixes = ['/favicon.ico', '/static', '/api/v1/auth', '/flasgger', '/api/v1/health']
+    def start_timer():
+        g.start_time = time.time()
+
+    @app.after_request
+    def log_enriched_info(response):
+        ignored_prefixes = ['/favicon.ico', '/static', '/flasgger', '/api/v1/health']
         if any(request.path.startswith(p) for p in ignored_prefixes):
-            return
+            return response
+        duration_ms = 0
+        if hasattr(g, 'start_time'):
+            duration_ms = (time.time() - g.start_time) * 1000
 
         user_id, username = get_user_info()
         try:
-            log = RouteAccessLog(
+            log_entry = RouteAccessLog(
                 username=username,
                 user_id=user_id,
                 route=request.path,
@@ -48,9 +55,13 @@ def register_route_logger(app):
                 user_agent=str(request.user_agent),
                 user_agent_browser=request.user_agent.browser,
                 user_agent_platform=request.user_agent.platform,
+                response_time_ms=round(duration_ms, 2),
+                status_code=response.status_code
             )
-            db.session.add(log)
+            db.session.add(log_entry)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            logger.error(f'error: {e}')
+            logger.error(f'Erro ao salvar log de rota: {e}')
+
+        return response

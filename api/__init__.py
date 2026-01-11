@@ -1,5 +1,5 @@
 import logging
-from flask import Flask, jsonify
+from flask import Flask, jsonify, g
 from sqlalchemy import inspect
 #extensões
 from api.extensions import db, jwt, swagger, bcrypt, cache
@@ -53,7 +53,7 @@ def create_app(testing=False):
     @jwt.expired_token_loader
     def expired_token_callback(header, payload):
         return jsonify({'error': 'Token expirado'}), 401
-
+    
     #registro de blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     app.register_blueprint(health_bp, url_prefix='/api/v1/health')

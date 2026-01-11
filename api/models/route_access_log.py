@@ -22,6 +22,8 @@ class RouteAccessLog(db.Model):
     user_agent          = db.Column(db.String(300), nullable=True)
     user_agent_browser  = db.Column(db.String(300), nullable=True)
     user_agent_platform = db.Column(db.String(100), nullable=True)
+    response_time_ms    = db.Column(db.Float, nullable=True)
+    status_code         = db.Column(db.Integer, nullable=True)
     created_at          = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
