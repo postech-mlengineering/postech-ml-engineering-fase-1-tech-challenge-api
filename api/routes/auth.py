@@ -7,13 +7,13 @@ from flask_jwt_extended import (
 )
 from api.extensions import db, bcrypt
 from api.models.user import User
-from api.models.users_access import UserAccess
+from api.models.user_access import UserAccess
 from api.models.refresh_token_manager import RefreshTokenManager
 from api.scripts.auth_utils import get_user_by_username
 from api.config import Config
 
 
-logger = logging.getLogger('__name__')
+logger = logging.getLogger(__name__)
 auth_bp = Blueprint('auth', __name__)
 
 
@@ -211,8 +211,8 @@ def login():
     if not user or not bcrypt.check_password_hash(user.password, password):
         return jsonify({'error': 'Usuário ou senha inválidas'}), 401
     try:
-        new_login = UserAccess(username=username, created_at=datetime.utcnow())
-        db.session.add(new_login)
+        access = UserAccess(username=username, created_at=datetime.utcnow())
+        db.session.add(access)
         existing_refresh_token = (
             RefreshTokenManager.query.filter(
                 RefreshTokenManager.username == user.username,
