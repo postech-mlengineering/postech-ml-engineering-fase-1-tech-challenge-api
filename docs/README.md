@@ -137,12 +137,12 @@ Motor de inteligência artificial para sugestão de conteúdo.
 
 ### Estatísticas (`/api/v1/stats`)
 
-- **Stats Overview (/overview)**: responsável por retornar estatísticas gerais do acervo
-- **Stats Genres (/genres)**: responsável por retornar estatísticas detalhadas por gênero
+- **/overview (/overview)**: responsável por retornar estatísticas gerais do acervo
+- **/genres (/genres)**: responsável por retornar estatísticas detalhadas por gênero
 
 ### Gestão (`/api/v1/health`)
 
-- **Health (/)**: Verifica o status da API e a conectividade com o Banco de Dados.
+- **/**: Verifica o status da API e a conectividade com o Banco de Dados.
 
 ## Monitoramento
 
@@ -182,7 +182,7 @@ A aplicação atua como a camada de serviço (API) que interage com o cliente, o
 
 ### Integrações
 
-Esta API recebe requisições de um aplicativo web desenvolvido com Streamlit e tem suas rotas `\scrape` e `*/training-data` orquestradas pelo Apache Airflow.
+Esta API recebe requisições de um aplicativo web desenvolvido com Streamlit e tem suas rotas `\scrape` e `\training-data` orquestradas pelo Apache Airflow.
 
 Link para o repositóro do aplicativo web: https://github.com/postech-mlengineering/postech-ml-techchallenge-fase-1-streamlit
 
