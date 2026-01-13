@@ -2,7 +2,7 @@
 set -e
 
 echo "Rodando migrations..."
-alembic upgrade head
+poetry run flask db upgrade
 
 echo "Iniciando aplicação..."
 exec "$@"
