@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Instala dependências do sistema
+#instala dependências do sistema
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -10,20 +10,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && pip install poetry
 
-# Poetry instala libs diretamente no sistema
+#poetry instala libs diretamente no sistema
 RUN poetry config virtualenvs.create false
 
-# Copia arquivos de dependência
+#copia arquivos de dependência
 COPY pyproject.toml poetry.lock ./
 
-# Instala dependências
+#instala dependências
 RUN poetry install --without dev --no-interaction --no-ansi
 
-#Baixar dados do NLTK durante a construção
-#RUN python -c "import nltk; nltk.download('punkt_tab'); nltk.download('stopwords')"
-
-
-# Copia aplicação
+#copia aplicação
 COPY . .
 
 COPY entrypoint.sh /entrypoint.sh

@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-
   api:
     build: .
     env_file:
@@ -14,6 +13,6 @@ services:
       - .:/app
     networks:
       - postech_network
-
+      
 networks:
   postech_network:
