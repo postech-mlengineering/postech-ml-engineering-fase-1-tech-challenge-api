@@ -8,7 +8,9 @@ Como resultado, a solução consolidou a integração de rotinas de web scraping
 
 O diagrama abaixo ilustra a arquitetura do projeto na sua integridade e com suas principais funcionalidades:
 
-<br><img src="https://github.com/postech-mlengineering/postech-ml-engineering-fase-1-tech-challenge-api/blob/309eaacc3b2b66a990fa7c56d6c78acedff23788/docs/arquitetura.png?raw=true" alt="Arquitetura">
+<br><p align="center">
+  <img src="https://github.com/postech-mlengineering/postech-ml-engineering-fase-1-tech-challenge-api/blob/864fc3276581ff664a9e71727a0131177e2b3f1f/docs/arquitetura.png?raw=true" alt="Arquitetura">
+</p>
 
 ### Pré-requisitos
 
