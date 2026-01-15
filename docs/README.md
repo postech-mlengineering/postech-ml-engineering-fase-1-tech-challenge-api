@@ -8,7 +8,7 @@ Como resultado, a solução consolidou a integração de rotinas de web scraping
 
 O diagrama abaixo ilustra a arquitetura do projeto na sua integridade e com suas principais funcionalidades:
 
-![Arquitetura]()
+![Arquitetura](https://github.com/postech-mlengineering/postech-ml-engineering-fase-1-tech-challenge-api/blob/b0a62dc9baa50d48796831f591478aba3fd0ebd1/docs/arquitetura.png)
 
 ```mermaid
 graph LR
