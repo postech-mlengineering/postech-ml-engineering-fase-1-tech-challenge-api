@@ -30,7 +30,7 @@ cd postech-ml-techchallenge-fase-1
 poetry install
 ```
 
-O Poetry criará um ambiente virtual isolado e instalará todas as bibliotecas de processamento de dados e IA necessárias.
+O Poetry criará um ambiente virtual isolado e instalará todas as bibliotecas necessárias.
 
 ### Como Rodar a Aplicação
 
@@ -45,7 +45,7 @@ docker-compose up --build
 1. Execute as migrações do banco de dados:
 
 ```bash
-poetry run alembic upgrade head
+poetry run flask db upgrade
 ```
 
 2. Inicie a aplicação:
@@ -104,16 +104,14 @@ Motor de inteligência artificial para sugestão de conteúdo.
 
 ## Monitoramento
 
-A API possui um sistema nativo de monitoramento de performance e auditoria integrada ao ciclo de vida das requisições. Todas as interações são registradas na tabela `AccessLog`, contendo: 
+A API possui um sistema nativo de monitoramento de performance e auditoria integrada ao ciclo de vida das requisições. Todas as interações são registradas na tabela `access_log`, contendo: 
 
 * **Performance:** tempo de resposta de cada endpoint (response_time_ms), permitindo a identificação de gargalos operacionais e a análise de latência do sistema em tempo real
-* **Auditoria:** registro da identidade do usuário autenticado e dos metadados da conexão (endereço IP, sistema operacional e navegador). Inclui a persistência dos parâmetros de busca e do corpo das requisições, garantindo a rastreabilidade dos dados de entrada e a reprodução fiel de estados do sistema para diagnóstico de erros.
+* **Auditoria:** registro da identidade do usuário autenticado e dos metadados da conexão (endereço IP, sistema operacional e navegador). Inclui a persistência dos parâmetros de busca e do corpo das requisições, garantindo a rastreabilidade dos dados de entrada e a reprodução fiel de estados do sistema para diagnóstico de erros
 
-Esta implementação assegura a governança dos dados e a análise do comportamento de uso da plataforma sem a dependência de serviços externos de telemetria.
+Esta implementação assegura a governança dos dados e a análise do comportamento de uso da API sem a dependência de serviços externos.
 
 ### Tecnologias
-
-A aplicação atua como a camada de serviço (API) que interage com o cliente, o motor de ML e o banco de dados.
 
 | Componente | Tecnologia | Versão | Descrição |
 | :--- | :--- | :--- | :--- |
@@ -133,7 +131,7 @@ A aplicação atua como a camada de serviço (API) que interage com o cliente, o
 | **ML** | **Scikit-learn** | `>=1.7.2, <2.0.0` | Biblioteca para desenvolvimento de modelos de ML |
 | **Serialização** | **Joblib** | `>=1.5.2, <2.0.0` | Ferramenta para persistência de modelos de ML e execução de tarefas |
 | **Testes** | **Pytest-cov** | `>=7.0.0, <8.0.0` | Extensão para geração de relatórios de cobertura de código nos testes |
-| **Configuração** | **Python-dotenv** | `>=1.2.1, <2.0.0` | Gerenciador de variáveis de ambiente a partir de arquivos .env |
+| **Configuração** | **Python-dotenv** | `>=1.2.1, <2.0.0` | Biblioteca para carregamento de variáveis de ambiente a partir de arquivos .env |
 | **Linguagem** | **Python** | `>=3.11, <3.14` | Linguagem para desenvolvimento de scripts |
 | **Infraestrutura** | **Docker** | `3.8 (Compose)` | Ferramenta de containerização para paridade entre ambientes |
 | **Gerenciamento** | **Poetry** | `2.2.1` | Gerenciador de ambientes virtuais para isolamento de dependências |
@@ -147,3 +145,19 @@ Link para o repositóro do aplicativo web: https://github.com/postech-mlengineer
 Link para o repositóro do Airflow: https://github.com/postech-mlengineering/postech-ml-engineering-fase-1-techchallenge-airflow
 
 ### Deploy
+
+A arquitetura e o deploy foram concebidos para suportar um ecossistema distribuído, utilizando a AWS (EC2) como provedor de infraestrutura e Docker para a padronização e o isolamento dos ambientes de execução.
+
+A solução é composta por três camadas principais de containers integrados:
+
+* **Orquestração (Apache Airflow)**: implementada em containers dedicados, esta camada é responsável pelo agendamento e execução dos pipelines de dados, acionando as rotas de /scrape e /training-data da API
+
+* **API (Flask)**: é o coração da arquitetura, onde a lógica de negócio e o motor de recomendações reside. Esta camada interage com o site Books To Scrape para aquisição de dados via web scraping e expõe endpoints para consumo
+
+* **Consumo (Streamlit)**: é a interface web que consome os serviços da API, permitindo que os usuários finais interajam com a API
+
+A comunicação entre os containers é otimizada por meio da atribuição de rede comum no Docker, permitindo que os serviços interajam através de nomes de host predefinidos em vez de IPs dinâmicos, elevando a eficiência e performance ao processar o tráfego de dados localmente na interface do host, o que reduz a latência e elimina custos de saída.
+
+#### Persistência
+
+A camada de persistência é estruturada por meio de um banco de dados relacional gerenciado via Supabase (integrado à plataforma Vercel). Esta infraestrutura é responsável pela centralização do acervo de livros, pelo histórico de preferências de usuários e pela persistência dos logs de auditoria.
