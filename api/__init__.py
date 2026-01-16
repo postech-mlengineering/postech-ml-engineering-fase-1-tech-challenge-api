@@ -73,7 +73,7 @@ def create_app(testing=False):
 
     #rota raiz
     @app.route('/')
-    @limiter.limit('1 per minute')
+    #@limiter.limit('1 per minute')
     def home():
         return jsonify({
             'status': 'online',
