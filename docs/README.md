@@ -1,8 +1,8 @@
 # Repositório da API para o Tech Challenge da Fase 1 da Pós-Graduação em Machine Learning Engineering da FIAP
 
-Este repositório consiste em uma API RESTful desenvolvida com Flask, cujo objetivo consistiu no desenvolvimento de uma infraestrutura robusta para a extração, transformação e disponibilização de dados por meio de uma API pública, visando facilitar o consumo dessas informações por cientistas de dados e serviços de recomendação. Para atender aos requisitos, o desenvolvimento pautou-se na implementação de um pipeline ETL automatizado via web scraping, na construção de uma interface escalável e padronizada, na estruturação de uma arquitetura ML-ready para suporte ao ciclo de vida de modelos e na aplicação de protocolos de governança, segurança e rastreabilidade.
+Este repositório consiste em uma API desenvolvida com Flask, cujo objetivo consistiu no desenvolvimento de uma API pública para a extração, transformação e disponibilização de dados, visando facilitar o consumo dessas informações por cientistas de dados e serviços de recomendação. 
 
-Como resultado, a solução consolidou a integração de rotinas de web scraping para aquisição de dados e um motor de recomendação fundamentado em processamento de linguagem natural. No que tange à infraestrutura de serviços, a API passou a dispor de segurança via JSON Web Tokens (JWT) com ciclos de renovação, otimização de performance por meio de camadas de cache e uma robusta camada de observabilidade, que persiste logs de auditoria de todas as transações no banco de dados.
+A solução disponibiliza endpoints para a coleta de dados via web scraping e para o acionamento do pipeline de um motor de recomendação baseado em processamento de linguagem natural. A API conta com autenticação via JWT (com refresh tokens), otimização de performance via cache e uma camada de observabilidade que registra logs de auditoria e métricas de performance para todas as transações.
 
 ### Arquitetura
 
