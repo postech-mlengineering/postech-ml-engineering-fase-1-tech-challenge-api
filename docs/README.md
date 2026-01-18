@@ -12,13 +12,7 @@ O diagrama abaixo ilustra a arquitetura do projeto na sua integridade e com suas
 
 ### Pré-requisitos
 
-Certifique-se de ter o Python 3.11 e o Poetry instalados em seu sistema.
-
-Para instalar o Poetry, use o método oficial:
-
-```bash
-curl -sSL https://install.python-poetry.org | python3 -
-```
+Certifique-se de ter o Python 3.11, o Poetry 2.1.1 e o Docker 29.1.1 (opcional) instalados em seu sistema.
 
 ### Instalação
 
@@ -27,6 +21,7 @@ Clone o repositório e instale as dependências:
 ```bash
 git clone https://github.com/jorgeplatero/postech-ml-techchallenge-fase-1.git
 cd postech-ml-techchallenge-fase-1
+
 poetry install
 ```
 
@@ -35,6 +30,23 @@ O Poetry criará um ambiente virtual isolado e instalará todas as bibliotecas n
 ### Como Rodar a Aplicação
 
 **Docker:**
+
+1. Configure as variáveis de ambiente criando um arquivo .env na raiz do projeto e preencha conforme o modelo abaixo:
+
+```bash
+JWT_SECRET_KEY=<sua_chave_secreta_aqui>
+DATABASE_URL=<sua_string_de_conexao_aqui>
+```
+
+Obs: você pode gerar uma chave segura para o JWT_SECRET_KEY executando openssl rand -base64 32 no seu terminal.
+
+2. Crie a rede externa (necessária para a comunicação entre os serviços):
+
+```bash
+docker network create postech_mlengineering_api
+```
+
+3. Inicie a aplicação:
 
 ```bash
 docker-compose up --build
@@ -48,13 +60,15 @@ docker-compose up --build
 poetry run flask db upgrade
 ```
 
+Obs: o comando criará o arquivo de banco de dados SQLite automaticamente caso a variável DATABASE_URL não seja fornecida no arquivo .env.
+
 2. Inicie a aplicação:
 
 ```bash
 poetry run python app.py
 ```
 
-A API estará rodando em http://127.0.0.1:5000/ e a documentação interativa Swagger em `/apidocs`.
+A API estará rodando em http://127.0.0.1:5000/ e a documentação em http://127.0.0.1:5000/apidocs`.
 
 ## Funcionalidades
 
@@ -134,7 +148,7 @@ Esta implementação assegura a governança dos dados e a análise do comportame
 | **Testes** | **Pytest-cov** | `>=7.0.0, <8.0.0` | Extensão para geração de relatórios de cobertura de código nos testes |
 | **Configuração** | **Python-dotenv** | `>=1.2.1, <2.0.0` | Biblioteca para carregamento de variáveis de ambiente a partir de arquivos .env |
 | **Linguagem** | **Python** | `>=3.11, <3.14` | Linguagem para desenvolvimento de scripts |
-| **Infraestrutura** | **Docker** | `3.8 (Compose)` | Ferramenta de containerização para paridade entre ambientes |
+| **Infraestrutura** | **Docker** | `29.1.1` | Ferramenta de containerização para paridade entre ambientes |
 | **Gerenciamento** | **Poetry** | `2.2.1` | Gerenciador de ambientes virtuais para isolamento de dependências |
 
 ### Integrações
@@ -147,18 +161,36 @@ Link para o repositóro do Airflow: https://github.com/postech-mlengineering/pos
 
 ### Deploy
 
-A arquitetura e o deploy foram concebidos para suportar um ecossistema distribuído, utilizando a AWS (EC2) como provedor de infraestrutura e Docker para a padronização e o isolamento dos ambientes de execução.
+A arquitetura e o deploy foram concebidos para suportar um ecossistema distribuído, utilizando uma instância EC2 na AWS como infraestrutura e Docker para a padronização e o isolamento dos ambientes.
 
-A solução é composta por três camadas principais de containers integrados:
+A solução é composta por três camadas de containers integrados:
 
-* **Orquestração (Apache Airflow)**: implementada em containers dedicados, esta camada é responsável pelo agendamento e execução dos pipelines de dados, acionando as rotas de /scrape e /training-data da API
+- **Orquestração (Apache Airflow)**: implementada em containers dedicados, esta camada é responsável pelo agendamento e execução dos pipelines de dados, acionando as rotas de /scrape e /training-data da API
 
-* **API (Flask)**: é o coração da arquitetura, onde a lógica de negócio e o motor de recomendações reside. Esta camada interage com o site Books To Scrape para aquisição de dados via web scraping e expõe endpoints para consumo
+- **API (Flask)**: é o coração da arquitetura. Esta camada interage com o site Books To Scrape para aquisição de dados via web scraping e expõe endpoints para consumo
 
-* **Consumo (Streamlit)**: é a interface web que consome os serviços da API, permitindo que os usuários finais interajam com a API
+- **Consumo (Web App Streamlit)**: é a interface web que consome os serviços da API, permitindo que os usuários finais interajam com a API
 
-A comunicação entre os containers é otimizada por meio da atribuição de rede comum no Docker, permitindo que os serviços interajam através de nomes de host predefinidos em vez de IPs dinâmicos, elevando a eficiência e performance ao processar o tráfego de dados localmente na interface do host, o que reduz a latência e elimina custos de saída.
+A comunicação entre os containers é otimizada via Docker network, permitindo a interação entre serviços através de nomes de host em vez de IPs dinâmicos. Essa configuração reduz a latência, elimina custos de tráfego externo e melhora a eficiência ao processar as requisições localmente no host.
+
+Os seviços podem ser acessados nos endereços abaixo:
+
+- **API**: http://18.208.50.37:5000
+- **Web App Streamlit**: http://18.208.50.37:8501
+- **Apache Airflow**: http://18.208.50.37:8080
 
 #### Persistência
 
-A camada de persistência é estruturada por meio de um banco de dados relacional gerenciado via Supabase (integrado à plataforma Vercel). Esta infraestrutura é responsável pela centralização do acervo de livros, pelo histórico de preferências de usuários e pela persistência dos logs de auditoria.
+A camada de persistência foi definida em um banco de dados gerenciado via Supabase (integrado à plataforma Vercel). Esta infraestrutura é responsável pela centralização do acervo de livros, pelo histórico de preferências de usuários e pela persistência dos logs de auditoria.
+
+### Link da Apresentação
+
+https://youtu.be/mSAH299OHDs
+
+### Colaboradores
+
+[Jorge Platero](https://github.com/jorgeplatero)
+
+[Leandro Delisposti](https://github.com/LeandroDelisposti)
+
+[Hugo Rodrigues](https://github.com/Nokard)
